@@ -1,48 +1,130 @@
-// Define variables
-const gameContainer = document.getElementById("game");
+// -----------------------------------------------------------------------
+// Global Variables
+// -----------------------------------------------------------------------
+
+const BASE_URL =
+  "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork";
+const POKEMON_SELECTION = 150; // max total - 898 pokemon available
 
 let card1Div = null;
-let card1DivColor = null;
 let card2Div = null;
-let card2DivColor
 
+let imgPaths = [];
 let disableClick = false;
+let scoreCounter = 0;
 
-const start = document.getElementById('start');
-start.addEventListener('click', startGame);
+let currGameSize;
 
-const reset = document.getElementById('reset');
-reset.addEventListener('click', resetGame);
+// -----------------------------------------------------------------------
+// Initial Setup by Selecting & Setting Up Elements & EventListeners
+// -----------------------------------------------------------------------
 
-let counter = 0;
-let savedScore = JSON.parse(localStorage.getItem('savedScore'));
+const startBtn = document.getElementById('start-btn');
+startBtn.addEventListener("click", newGame);
+
+const resetBtn = document.getElementById("reset-btn");
+resetBtn.addEventListener("click", newGame);
+
+const tableSize = document.getElementById("table-size");
+
+const savedScore = JSON.parse(localStorage.getItem('savedScore')) || 0;
 const bestScore = document.querySelector('#best-score');
-bestScore.innerText = savedScore === null? `Best Score: ${counter}`: `Best Score: ${savedScore}`;
+
+if (savedScore[tableSize.value]) {
+  bestScore.innerText = savedScore[tableSize.value];
+} else {
+  bestScore.innerText = 0;
+}
+
 const score = document.querySelector('#score');
-score.innerText = `Score: ${counter}`;
+score.innerText = scoreCounter;
 
-const msg = document.querySelector('#msg');
+const size = document.querySelector("#size");
+size.innerText = `${tableSize.value}x${tableSize.value}`;
 
+const table = document.getElementById("game-board");
+table.addEventListener("click", handleCardClick);
 
-// Define color for the cards
-const COLORS = [
-  "red",
-  "blue",
-  "green",
-  "orange",
-  "purple",
-  "teal",
-  "red",
-  "blue",
-  "green",
-  "orange",
-  "purple",
-  "teal"
-];
+const end = document.getElementById("end");
+const msg = document.getElementById("msg");
 
-// Function to shuffle an array
-function shuffle(array) {
-  let counter = array.length;
+// -----------------------------------------------------------------------
+// Functions for the Memory Game
+// -----------------------------------------------------------------------
+
+// Create HTML Board
+function createBoard(tableSize) {
+  table.innerHTML = "";
+
+  for (let row = 0; row < tableSize; row++) {
+    let tr = document.createElement("tr");
+    for (let col = 0; col < tableSize; col++) {
+      let td = document.createElement("td");
+      td.setAttribute("id", `${row}-${col}`);
+
+      if (
+        tableSize % 2 !== 0 &&
+        row === Math.floor(tableSize / 2) &&
+        col === Math.floor(tableSize / 2)
+      ) {
+        let imgPikachu = document.createElement("img");
+        imgPikachu.setAttribute("src", "imgs/pikachu.png");
+        td.append(imgPikachu);
+
+      } else {
+
+        let divCard = document.createElement("div");
+        divCard.classList.add("card");
+
+        let divCardFront = document.createElement("div");
+        divCardFront.classList.add("front");
+
+        let imgPokeball = document.createElement("img");
+        imgPokeball.setAttribute("src", "imgs/pokeball.png");
+        imgPokeball.setAttribute("width", "50px");
+        divCardFront.append(imgPokeball);
+
+        let divCardBack = document.createElement("div");
+        divCardBack.classList.add("back");
+
+        divCard.append(divCardFront, divCardBack);
+        td.append(divCard);
+
+      }
+
+      tr.append(td);
+    }
+
+    table.append(tr);
+  }
+}
+
+// Get Image Array
+function getImgs(tableSize) {
+  let cardTotal = 0;
+  let randPokemon = new Set();
+  
+  if (tableSize % 2 !== 0) {
+    cardTotal = tableSize ** 2 - 1;
+  } else {
+    cardTotal = tableSize ** 2;
+  }
+
+  while (randPokemon.size !== cardTotal/2) {
+    let randId = Math.floor(Math.random() * POKEMON_SELECTION + 1);
+    randPokemon.add(randId);
+  }
+
+  for (let id of randPokemon) {
+    imgPaths.push(`${BASE_URL}/${id}.png`);
+    imgPaths.push(`${BASE_URL}/${id}.png`);
+  }
+
+}
+
+// Shuffle the image array
+function shuffle() {
+  let counter = imgPaths.length;
 
   // While there are elements in the array
   while (counter > 0) {
@@ -53,65 +135,86 @@ function shuffle(array) {
     counter--;
 
     // And swap the last element with it
-    let temp = array[counter];
-    array[counter] = array[index];
-    array[index] = temp;
+    [imgPaths[counter], imgPaths[index]] = [imgPaths[index], imgPaths[counter]];
   }
 
-  return array;
 }
 
-let shuffledColors = shuffle(COLORS);
 
-// Function to loop over the array of colors
-// it creates a new div and gives it a class with the value of the color
-// it also adds an event listener for a click for each card
-function createDivsForColors(colorArray) {
-  for (let color of colorArray) {
-    // create a new div
-    const newDiv = document.createElement('div');
+// Get & set images to the board
+function setImgs(tableSize) {
+  getImgs(tableSize);
+  shuffle();
 
-    // give it a class attribute for the value we are looping over
-    newDiv.classList.add(color);
+  let paths = [...imgPaths];
 
-    // call a function handleCardClick when a div is clicked on
-    newDiv.addEventListener('click', handleCardClick);
+  for (let row = 0; row < tableSize; row++) {
+    for (let col = 0; col < tableSize; col++) {
+      if (
+        tableSize % 2 !== 0 &&
+        row === Math.floor(tableSize / 2) &&
+        col === Math.floor(tableSize / 2)
+      ) {
+        continue;
+      }
 
-    // append the div to the element with an id of game
-    gameContainer.append(newDiv);
+      let tdId = `${row}-${col}`;
+      let td = document.getElementById(tdId);
+      let imgPath = paths.shift();
 
+      let img = document.createElement("img");
+      img.setAttribute("src", imgPath);
+
+      td.children[0].children[1].append(img);
+    }
   }
+}
+
+// Start or reset a game
+function newGame() {
+
+  currGameSize = tableSize.value;
+  size.innerText = `${currGameSize}x${currGameSize}`;
+
+  if (savedScore[currGameSize]) {
+    bestScore.innerText = savedScore[currGameSize];
+  } else {
+    bestScore.innerText = 0;
+  }
+
+  // Reset all values
+  end.classList.remove("over");
+  startBtn.innerText = "New Game";
+  card1Div = null;
+  card2Div = null;
   
+  imgPaths = [];
+  scoreCounter = 0;
+  score.innerText = scoreCounter;
+
+  createBoard(currGameSize);
+  setImgs(currGameSize);
 }
 
-
-function startGame() {
-  createDivsForColors(shuffledColors);
-  start.remove();
-} 
-
-function resetGame() {
-  gameContainer.textContent = '';
-  shuffledColors = shuffle(COLORS);
-  createDivsForColors(shuffledColors);
-  counter = 0;
-  score.innerText = `Score: ${counter}`;
-  msg.innerText = 'Try to get the lowest score by using the least number of moves to flip all cards.';
-}
-
+// Handle clicks on cards
 function handleCardClick(event) {
   // Allows user to select only 2 cards at a time
+
+  let currCardDiv;
   if (disableClick) {
     return;
   }
 
-  const currCardDiv = event.target;
-  currCardDiv.style.backgroundColor = currCardDiv.className;
+  if (event.target.classList.contains('front')) {
+    currCardDiv = event.target.parentElement;
+  } else if (event.target.tagName === 'IMG') {
+    currCardDiv = event.target.parentElement.parentElement;
+  } else {
+    return;
+  }
 
-  // disableClick for selecting the same card
+  // disable further action for selecting the same card
   if (currCardDiv.classList.contains('flipped')) {
-    msg.innerText = 'You have already selected or matched this card.';
-    disableClick = false;
     return;
   } 
   
@@ -122,7 +225,6 @@ function handleCardClick(event) {
     card2Div = currCardDiv === card1Div ? null : currCardDiv;
 
     addScore();
-    disableClick = false;
   } 
   
   // Compare cards if they are both selected and defined
@@ -131,64 +233,74 @@ function handleCardClick(event) {
     compareCards();
   }
 
-  function compareCards() {
-    card1DivColor = card1Div.className;
-    card2DivColor = card2Div.className
-          
-    if (card1DivColor === card2DivColor) {
-      msg.innerText = 'You are correct!';
-      
-      checkforWinning();
+  
+}
 
-      card1Div = null;
-      card2Div = null;
+// Compare 2 cards 
+function compareCards() {
+  // console.log("1", card1Div);
+  // console.log("2", card2Div);
 
-      disableClick = false;
+  card1Img = card1Div.children[1].children[0].src;
+  card2Img = card2Div.children[1].children[0].src;
+        
+  if (card1Img === card2Img) {
+    checkforWinning();
 
-    } else {
-      resetCard();
-    }
-  }
+    card1Div = null;
+    card2Div = null;
 
-  function resetCard() {
-    setTimeout(function() {
-      card1Div.style.backgroundColor = '';
-      card2Div.style.backgroundColor = '';
-      card1Div.classList.remove('flipped');
-      card2Div.classList.remove('flipped');
-      card1Div = null;
-      card2Div = null;
-
-      msg.innerText = '';
-      disableClick = false;
-    }, 1000)
+    disableClick = false;
+  } else {
+    resetCard();
   }
 }
 
+// Reset cards if they don't match
+function resetCard() {
+  setTimeout(function() {
+    card1Div.classList.remove('flipped');
+    card2Div.classList.remove('flipped');
+    card1Div = null;
+    card2Div = null;
+
+    disableClick = false;
+  }, 1000)
+}
+
+// Increment the score counter
 function addScore() {
-  counter++;
-  score.innerText = `Score: ${counter}`;
+  scoreCounter++;
+  score.innerText = scoreCounter;
 }
 
+// Check if the winning condition has met
 function checkforWinning() {
   let winCount = 0;
-  const checkDivs = document.querySelectorAll('div > div');
+  const checkDivs = document.querySelectorAll('div.card');
 
   for (let div of checkDivs) {
     if (div.classList.contains('flipped')) {
       winCount++;
     }
   }
-  if (winCount === COLORS.length) {
-      msg.innerText = 'YOU WON!';
 
-    if (savedScore === null || counter < savedScore) {
-      bestScore.innerText = `Best Score: ${counter}`;
+  if (winCount === imgPaths.length) {
+    
+    end.classList.add("over");  
+    msg.innerText = `Your score is ${scoreCounter}`;
 
-      savedScore = counter;
-      localStorage.setItem('savedScore', JSON.stringify(counter));
+    if (
+      savedScore[currGameSize] === undefined ||
+      scoreCounter < savedScore[currGameSize]
+    ) {
+      msg.innerText = `You made a record! Your new best score is ${scoreCounter}`;
+      bestScore.innerText = scoreCounter;
 
-      msg.innerText = 'YOU WON! Your best score is updated!';
+      localStorage.setItem(
+        "savedScore",
+        JSON.stringify({ ...savedScore, [currGameSize]: scoreCounter })
+      );
     }
   }
 }

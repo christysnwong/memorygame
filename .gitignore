@@ -1,1 +1,14 @@
 *.Identifier
+
+/solution
+*/solution
+
+/dl
+
+/archive
+/dl
+
+imgs/backup
+imgs/bg
+
+mindmap.txt

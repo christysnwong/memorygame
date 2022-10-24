@@ -5,17 +5,30 @@
     <title>MEMORY GAME</title>
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body class="defaultColor">
-    <h1>MEMORY GAME</h1>
-    <h2 id="best-score"></h2>
-    <h2 id="score"></h2>
-    <input id="start" type="button" value="Start the Game">
-    <input id="reset" type="reset" value="Reset">
-    <hr>
-    <div id="game">
+  <body>
+    <div class="container">
+      <h1 class="title">POKEMON MEMORY GAME</h1>
+      <h2 class="subtitle">"Gotta Match Em All"</h2>
+      <h3>Try to match all cards with the lowest score</h3>
+      <h3>Size <span id="size"></span> | Best Score: <span id="best-score"></span> | Score: <span id="score"></span></h3>
+
+      <h3>
+        <label for="table-size">Difficulty</label>
+        <input id="table-size" type="range" min="3" max="7">
+      </h3>
+      
+      <button id="start-btn">Start the Game!</button>
+      <div id="game-wrapper">
+          <table id="game-board"></table>
+      </div>
+
+      <div id="end">
+        <h1 class="subtitle large-font">CONGRATS!</h1>
+        <h4 id="msg" class="subtitle large-font"></h4>
+        <button id="reset-btn">Reset the Game!</button>
+      </div>
+      
+      <script src="script.js"></script>
     </div>
-    <h2 id="msg">Try to get the lowest score by using the least number of moves to flip all cards.</h2>
-    
-    <script src="script.js"></script>
   </body>
 </html>
