@@ -27,13 +27,13 @@ resetBtn.addEventListener("click", newGame);
 
 const tableSize = document.getElementById("table-size");
 
-const savedScore = JSON.parse(localStorage.getItem('savedScore')) || 0;
+let savedScore = JSON.parse(localStorage.getItem('pokemem-savedScore')) || 0;
 const bestScore = document.querySelector('#best-score');
 
 if (savedScore[tableSize.value]) {
   bestScore.innerText = savedScore[tableSize.value];
 } else {
-  bestScore.innerText = 0;
+  bestScore.innerText = "N/A";
 }
 
 const score = document.querySelector('#score');
@@ -180,7 +180,7 @@ function newGame() {
   if (savedScore[currGameSize]) {
     bestScore.innerText = savedScore[currGameSize];
   } else {
-    bestScore.innerText = 0;
+    bestScore.innerText = "N/A";
   }
 
   // Reset all values
@@ -239,8 +239,6 @@ function handleCardClick(event) {
 
 // Compare 2 cards 
 function compareCards() {
-  // console.log("1", card1Div);
-  // console.log("2", card2Div);
 
   card1Img = card1Div.children[1].children[0].src;
   card2Img = card2Div.children[1].children[0].src;
@@ -298,10 +296,13 @@ function checkforWinning() {
       msg.innerText = `You made a record! Your new best score is ${scoreCounter}`;
       bestScore.innerText = scoreCounter;
 
+      // Update the global variable savedScore and localStorage's savedScore
+      savedScore = { ...savedScore, [currGameSize]: scoreCounter };
       localStorage.setItem(
-        "savedScore",
-        JSON.stringify({ ...savedScore, [currGameSize]: scoreCounter })
+        "pokemem-savedScore",
+        JSON.stringify({ ...savedScore })
       );
+      
     }
   }
 }
