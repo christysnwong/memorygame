@@ -80,8 +80,9 @@ function createBoard(tableSize) {
         divCardFront.classList.add("front");
 
         let imgPokeball = document.createElement("img");
+        imgPokeball.classList.add("pokeball");
         imgPokeball.setAttribute("src", "imgs/pokeball.png");
-        imgPokeball.setAttribute("width", "50px");
+        imgPokeball.setAttribute("width", "60px");
         divCardFront.append(imgPokeball);
 
         let divCardBack = document.createElement("div");

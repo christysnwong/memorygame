@@ -1,25 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MEMORY GAME</title>
     <link rel="stylesheet" href="style.css" />
   </head>
+
   <body>
     <div class="container">
       <h1 class="title">POKEMON MEMORY GAME</h1>
       <h2 class="subtitle">"Gotta Match Em All"</h2>
       <h3>Try to match all cards with the lowest score</h3>
-      <h3>Size <span id="size"></span> | Best Score: <span id="best-score"></span> | Score: <span id="score"></span></h3>
+      <h3>
+        Size <span id="size"></span> | Best Score:
+        <span id="best-score"></span> | Score: <span id="score"></span>
+      </h3>
 
       <h3>
         <label for="table-size">Difficulty</label>
-        <input id="table-size" type="range" min="3" max="7">
+        <input id="table-size" type="range" min="3" max="7" />
       </h3>
-      
+
       <button id="start-btn">Start the Game!</button>
       <div id="game-wrapper">
-          <table id="game-board"></table>
+        <table id="game-board"></table>
       </div>
 
       <div id="end">
@@ -27,7 +33,7 @@
         <h4 id="msg" class="subtitle large-font"></h4>
         <button id="reset-btn">Reset the Game!</button>
       </div>
-      
+
       <script src="script.js"></script>
     </div>
   </body>
