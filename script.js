@@ -30,17 +30,17 @@ const tableSize = document.getElementById("table-size");
 let savedScore = JSON.parse(localStorage.getItem('pokemem-savedScore')) || 0;
 const bestScore = document.querySelector('#best-score');
 
-if (savedScore[tableSize.value]) {
-  bestScore.innerText = savedScore[tableSize.value];
-} else {
-  bestScore.innerText = "N/A";
-}
+// if (savedScore[tableSize.value]) {
+//   bestScore.innerText = savedScore[tableSize.value];
+// } else {
+//   bestScore.innerText = "N/A";
+// }
 
-const score = document.querySelector('#score');
-score.innerText = scoreCounter;
+// const score = document.querySelector('#score');
+// score.innerText = scoreCounter;
 
-const size = document.querySelector("#size");
-size.innerText = `${tableSize.value}x${tableSize.value}`;
+// const size = document.querySelector("#size");
+// size.innerText = `${tableSize.value}x${tableSize.value}`;
 
 const table = document.getElementById("game-board");
 table.addEventListener("click", handleCardClick);
@@ -260,7 +260,9 @@ function resetCard() {
   setTimeout(function() {
     card1Div.classList.remove('flipped');
     card2Div.classList.remove('flipped');
+    console.log("CHECK card1Div", card1Div);
     card1Div = null;
+    console.log("CHECK card1Div", card1Div);
     card2Div = null;
 
     disableClick = false;
