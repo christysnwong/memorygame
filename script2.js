@@ -164,7 +164,7 @@ class PokeMemGame {
 
     if ($(event.target).hasClass("front")) {
       $currCardDiv = $(event.target).parent();
-    } else if (event.target.tagName === "IMG") {
+    } else if ($(event.target).parent().hasClass("front")) {
       $currCardDiv = $(event.target).parent().parent();
     } else {
       return;
